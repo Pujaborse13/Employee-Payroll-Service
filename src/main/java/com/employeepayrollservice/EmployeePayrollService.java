@@ -1,13 +1,13 @@
 package com.employeepayrollservice;
 
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.List;
 
 class EmployeePayroll {
     private int id;
     private String name;
     private double salary;
-
 
     public EmployeePayroll(int id, String name, double salary) {
         this.id = id;
@@ -16,18 +16,6 @@ class EmployeePayroll {
     }
 
 
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public double getSalary() {
-        return salary;
-    }
-
     @Override
     public String toString() {
         return "Employee ID: " + id + ", Name: " + name + ", Salary: " + salary;
@@ -35,57 +23,47 @@ class EmployeePayroll {
 }
 
 public class EmployeePayrollService {
-    private ArrayList<EmployeePayroll> employeeList = new ArrayList<>();
 
-    public void readEmployeeData() {
-        Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Enter Employee ID: ");
-        int id = scanner.nextInt();
-        scanner.nextLine(); // Consume the newline
-
-        System.out.print("Enter Employee Name: ");
-        String name = scanner.nextLine();
-
-        System.out.print("Enter Employee Salary: ");
-        double salary = scanner.nextDouble();
-
-        EmployeePayroll employee = new EmployeePayroll(id, name, salary);
-        employeeList.add(employee);
-    }
-
-    public void writeEmployeeData() {
-        System.out.println("Employee Payroll Details:");
-        for (EmployeePayroll employee : employeeList) {
-            System.out.println(employee);
-        }
-    }
+    private static final String PAYROLL_FILE_PATH = "employee_payroll.txt";
 
     public static void main(String[] args) {
-        EmployeePayrollService payrollService = new EmployeePayrollService();
-        Scanner scanner = new Scanner(System.in);
 
-        while (true) {
-            System.out.println("\nMenu:");
-            System.out.println("1. Add Employee");
-            System.out.println("2. Display Employees");
-            System.out.println("3. Exit");
-            System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
+        List<EmployeePayroll> employeeList = new ArrayList<>();
+        employeeList.add(new EmployeePayroll(1, "Alice", 50000));
+        employeeList.add(new EmployeePayroll(2, "Bob", 60000));
+        employeeList.add(new EmployeePayroll(3, "Charlie", 70000));
 
-            switch (choice) {
-                case 1:
-                    payrollService.readEmployeeData();
-                    break;
-                case 2:
-                    payrollService.writeEmployeeData();
-                    break;
-                case 3:
-                    System.out.println("Exiting the program.");
-                    return;
-                default:
-                    System.out.println("Invalid option. Please try again.");
+        writeEmployeePayrollToFile(employeeList);
+
+        int entries = countEntriesInFile();
+        System.out.println("Number of entries in the file: " + entries);
+    }
+
+
+    private static void writeEmployeePayrollToFile(List<EmployeePayroll> employeeList) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PAYROLL_FILE_PATH))) {
+            for (EmployeePayroll employee : employeeList) {
+                writer.write(employee.toString());
+                writer.newLine();
             }
+            System.out.println("Employee payroll written to file: " + PAYROLL_FILE_PATH);
+        } catch (IOException e) {
+            System.out.println("Error writing to file.");
+            e.printStackTrace();
         }
     }
+    private static int countEntriesInFile() {
+        int count = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(PAYROLL_FILE_PATH))) {
+            while (reader.readLine() != null) {
+                count++;
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading file.");
+            e.printStackTrace();
+        }
+        return count;
+    }
+
 }
