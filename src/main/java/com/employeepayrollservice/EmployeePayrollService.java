@@ -23,21 +23,24 @@ class EmployeePayroll {
 }
 
 public class EmployeePayrollService {
-
-
     private static final String PAYROLL_FILE_PATH = "employee_payroll.txt";
 
     public static void main(String[] args) {
 
         List<EmployeePayroll> employeeList = new ArrayList<>();
-        employeeList.add(new EmployeePayroll(1, "Alice", 50000));
+        employeeList.add(new EmployeePayroll(1, "Alice", 80000));
         employeeList.add(new EmployeePayroll(2, "Bob", 60000));
         employeeList.add(new EmployeePayroll(3, "Charlie", 70000));
 
         writeEmployeePayrollToFile(employeeList);
 
+        System.out.println("Printing employee payrolls from the file ");
+        printEmployeePayrolls();
+
+
         int entries = countEntriesInFile();
-        System.out.println("Number of entries in the file: " + entries);
+        System.out.println("Number of entries in the file :"+entries);
+
     }
 
 
@@ -53,6 +56,20 @@ public class EmployeePayrollService {
             e.printStackTrace();
         }
     }
+
+    private static void printEmployeePayrolls() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(PAYROLL_FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading file.");
+            e.printStackTrace();
+        }
+    }
+
+
     private static int countEntriesInFile() {
         int count = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader(PAYROLL_FILE_PATH))) {
