@@ -14,6 +14,9 @@ class EmployeePayroll {
         this.name = name;
         this.salary = salary;
     }
+    public double getSalary() {
+        return salary;
+    }
 
 
     @Override
@@ -27,60 +30,96 @@ public class EmployeePayrollService {
 
     public static void main(String[] args) {
 
-        List<EmployeePayroll> employeeList = new ArrayList<>();
-        employeeList.add(new EmployeePayroll(1, "Alice", 80000));
-        employeeList.add(new EmployeePayroll(2, "Bob", 60000));
-        employeeList.add(new EmployeePayroll(3, "Charlie", 70000));
-
-        writeEmployeePayrollToFile(employeeList);
-
-        System.out.println("Printing employee payrolls from the file ");
-        printEmployeePayrolls();
+        List<EmployeePayroll> employeeList = readEmployeePayrollFromFile();
 
 
-        int entries = countEntriesInFile();
-        System.out.println("Number of entries in the file :"+entries);
+        if (!employeeList.isEmpty()) {
+            System.out.println("Performing analysis on employee payroll data:");
 
-    }
+            double averageSalary = calculateAverageSalary(employeeList);
+            System.out.println("Average Salary: " + averageSalary);
 
+            EmployeePayroll highestSalaryEmployee = findHighestSalaryEmployee(employeeList);
+            System.out.println("Employee with Highest Salary: " + highestSalaryEmployee);
 
-    private static void writeEmployeePayrollToFile(List<EmployeePayroll> employeeList) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PAYROLL_FILE_PATH))) {
-            for (EmployeePayroll employee : employeeList) {
-                writer.write(employee.toString());
-                writer.newLine();
-            }
-            System.out.println("Employee payroll written to file: " + PAYROLL_FILE_PATH);
-        } catch (IOException e) {
-            System.out.println("Error writing to file.");
-            e.printStackTrace();
+            EmployeePayroll lowestSalaryEmployee = findLowestSalaryEmployee(employeeList);
+            System.out.println("Employee with Lowest Salary: " + lowestSalaryEmployee);
+        } else {
+            System.out.println("No employee payroll data found.");
         }
     }
 
-    private static void printEmployeePayrolls() {
+    private static List<EmployeePayroll> readEmployeePayrollFromFile() {
+        List<EmployeePayroll> employeeList = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(PAYROLL_FILE_PATH))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                // Parse the employee details from the line
+                String[] parts = line.split(", ");
+                int id = Integer.parseInt(parts[0].split(": ")[1]);
+                String name = parts[1].split(": ")[1];
+                double salary = Double.parseDouble(parts[2].split(": ")[1]);
+
+                // Create an EmployeePayroll object and add it to the list
+                employeeList.add(new EmployeePayroll(id, name, salary));
             }
         } catch (IOException e) {
-            System.out.println("Error reading file.");
+            System.out.println("Error reading employee payroll file.");
             e.printStackTrace();
         }
+        return employeeList;
     }
 
 
-    private static int countEntriesInFile() {
-        int count = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(PAYROLL_FILE_PATH))) {
-            while (reader.readLine() != null) {
-                count++;
-            }
-        } catch (IOException e) {
-            System.out.println("Error reading file.");
-            e.printStackTrace();
+    private static double calculateAverageSalary(List<EmployeePayroll> employeeList) {
+        double totalSalary = 0;
+        for (EmployeePayroll employee : employeeList) {
+            totalSalary += employee.getSalary();
         }
-        return count;
+        return totalSalary / employeeList.size();
     }
 
+    private static EmployeePayroll findHighestSalaryEmployee(List<EmployeePayroll> employeeList) {
+        EmployeePayroll highestSalaryEmployee = employeeList.get(0);
+        for (EmployeePayroll employee : employeeList) {
+            if (employee.getSalary() > highestSalaryEmployee.getSalary()) {
+                highestSalaryEmployee = employee;
+            }
+        }
+        return highestSalaryEmployee;
+    }
+    private static EmployeePayroll findLowestSalaryEmployee(List<EmployeePayroll> employeeList) {
+        EmployeePayroll lowestSalaryEmployee = employeeList.get(0);
+        for (EmployeePayroll employee : employeeList) {
+            if (employee.getSalary() < lowestSalaryEmployee.getSalary()) {
+                lowestSalaryEmployee = employee;
+            }
+        }
+        return lowestSalaryEmployee;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
